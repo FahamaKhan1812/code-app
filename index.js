@@ -163,6 +163,116 @@ app.get("/lab14", (req, res) => {
   });
 });
 
+app.get("/stm", (req, res) => {
+  res.format({
+    text: function () {
+      res.send(
+        `
+        /*
+Fahama Khan
+19B-039-CS-A
+*/
+#include <iostream>
+#include <map>
+#include <string>
+#include <vector>
+
+struct Value
+{
+  std::string type;
+  std::string Scope;
+  int lineNumber;
+};
+
+bool DuplicationCheck(const std::string &name, const std::vector<std::map<std::string, Value>> &list)
+{
+  for (const auto &dictionary : list)
+  {
+    if (dictionary.count(name) > 0)
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
+void InsertInSTM(const std::string &name, const std::string &type, const std::string &Scope, const int &lineNumber,
+                 std::vector<std::map<std::string, Value>> &list)
+{
+  if (!DuplicationCheck(name, list))
+  {
+    std::map<std::string, Value> dictionary;
+    dictionary[name] = {type, Scope, lineNumber};
+    list.push_back(dictionary);
+  }
+}
+
+void printList(const std::vector<std::map<std::string, Value>> &list)
+{
+  std::cout << "Symbol table Manager:\n"
+            << std::endl;
+  std::cout << "------------------------------------------------------------" << std::endl;
+  std::cout << "Name\t\t|Type\t\t|Scope\t\t|Line Number" << std::endl;
+  std::cout << "------------------------------------------------------------" << std::endl;
+
+  for (const auto &dictionary : list)
+  {
+
+    for (const auto &[name, value] : dictionary)
+    {
+      std::cout << name << "\t\t|" << value.type << "\t\t|" << value.Scope << "\t\t|" << value.lineNumber << std::endl;
+    }
+  }
+  std::cout << "------------------------------------------------------------" << std::endl;
+}
+
+bool LookUp(const std::vector<std::map<std::string, Value>> &list,
+            const std::string &name,
+            Value &result)
+{
+  for (const auto &dictionary : list)
+  {
+    auto it = dictionary.find(name);
+    if (it != dictionary.end())
+    {
+      result = it->second;
+      return true;
+    }
+  }
+  return false;
+}
+
+int main()
+{
+  std::vector<std::map<std::string, Value>> list;
+  InsertInSTM("i", "int", "local", 5, list);
+  InsertInSTM("j", "float", "local", 6, list);
+  InsertInSTM("count", "const", "global", 7, list);
+  InsertInSTM("help", "var", "local", 8, list);
+  printList(list);
+
+  Value result;
+  std::string query = "j";
+
+  if (LookUp(list, query, result))
+  {
+    std::cout << "\nFound:" << std::endl;
+    std::cout << query << ": " << result.type << ", " << result.Scope << " --> " << result.lineNumber << std::endl;
+  }
+  else
+  {
+    std::cout << "Variable not found" << std::endl;
+  }
+
+  return 0;
+}
+
+        `
+      );
+    },
+  });
+});
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
