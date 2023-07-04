@@ -114,6 +114,8 @@ print("Confusion Matrix: \n", confusion_matrix(y_test, y_pred))
 print("classification report: \n", classification_report(y_test, y_pred))
 print("Predicted Values: ", y_pred)
 print("Accuracy Score: ", accuracy_score(y_test, y_pred))
+ 
+  
   -----BFS----
   import copy
 
@@ -147,9 +149,32 @@ def bfs(graph, start, end):
             new_path = copy.deepcopy(path)
             new_path.append(value)
             queue.append(new_path)
-
-
 print(bfs(graph, 'A', 'G'))
+	----DFS---
+ graph = {
+    "A": ["B", "D"],
+    "B": ["C", "E"],
+    "C": [],
+    "D": ["E", "H", "G"],
+    "E": ["C", "F"],
+    "F": [],
+    "G": ["H"],
+    "H": []
+}
+visited = set()
+newArray = []
+
+
+def dfs(visited, graph, node):
+    if node not in visited:
+        newArray.append(node)
+        visited.add(node)
+        for neighbour in graph[node]:
+            dfs(visited, graph, neighbour)
+        return newArray
+
+
+print(dfs(visited, graph, 'G'))
 
          `
       );
