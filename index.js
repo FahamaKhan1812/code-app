@@ -114,7 +114,43 @@ print("Confusion Matrix: \n", confusion_matrix(y_test, y_pred))
 print("classification report: \n", classification_report(y_test, y_pred))
 print("Predicted Values: ", y_pred)
 print("Accuracy Score: ", accuracy_score(y_test, y_pred))
-  
+  -----BFS----
+  import copy
+
+graph = {
+    "A": ["B", "D"],
+    "B": ["C", "E"],
+    "C": [],
+    "D": ["E", "H", "G"],
+    "E": ["C", "F"],
+    "F": [],
+    "G": ["H"],
+    "H": []
+}
+
+visited_array = []
+queue = []
+
+
+def bfs(graph, start, end):
+    queue = []
+    queue.append([start])
+    while queue:
+        path = queue.pop(0)
+        node = path[-1]
+        if node == end:
+            return path
+        child = []
+        if node in graph:
+            child = graph[node]
+        for value in child:
+            new_path = copy.deepcopy(path)
+            new_path.append(value)
+            queue.append(new_path)
+
+
+print(bfs(graph, 'A', 'G'))
+
          `
       );
     },
