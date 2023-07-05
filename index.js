@@ -776,7 +776,44 @@ while True:
     if not playAgain():
         print("Thanks for playing!")
         break
+#	----ANN-----
+import pandas as pd
+import numpy as np
+from sklearn.neural_network import MLPClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.impute import SimpleImputer
+from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import classification_report, confusion_matrix
 
+df = pd.read_csv('Weather.csv', low_memory=False)
+imputer = SimpleImputer(strategy='median', missing_values=np.nan)
+imputer = imputer.fit(df[['MAX', 'MIN']])
+df[['MAX', 'MIN']] = imputer.transform(df[['MAX', 'MIN']])
+
+
+target_column = ['MIN']
+predictors = ["MAX"]
+df[predictors] = df[predictors]/df[predictors].max()
+df.describe().transpose()
+df.head()
+
+
+X = df[predictors].values
+y = df[target_column].values
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.30, random_state=40)
+
+
+mlp = MLPClassifier(hidden_layer_sizes=(8, 8, 8),
+                    activation='logistic', solver='adam', max_iter=10)
+mlp.fit(X_train, y_train.ravel())
+
+predict_test = mlp.predict(X_test)
+
+
+print(confusion_matrix(y_test, predict_test))
+print(classification_report(y_test, predict_test))
          `
       );
     },
