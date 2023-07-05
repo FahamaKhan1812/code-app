@@ -814,6 +814,60 @@ predict_test = mlp.predict(X_test)
 
 print(confusion_matrix(y_test, predict_test))
 print(classification_report(y_test, predict_test))
+
+#	---SVM---
+import numpy as np
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.svm import SVC
+from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
+
+# Load the dataset
+data = np.loadtxt('data_banknote_authentication.txt', delimiter=',')
+
+# Split the dataset into features (X) and target variable (y)
+X = data[:, :-1]
+y = data[:, -1]
+
+# Define the train/test split ratios
+split_ratios = [(0.5, 0.5), (0.7, 0.3), (0.9, 0.1)]
+
+# Perform train/test split and evaluate performance for each split ratio
+for train_ratio, test_ratio in split_ratios:
+    # Split the dataset into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=train_ratio, test_size=test_ratio, random_state=42)
+    
+    # Initialize and train the SVM classifier
+    svm = SVC()
+    svm.fit(X_train, y_train)
+    
+    # Evaluate the model
+    y_pred = svm.predict(X_test)
+    accuracy = accuracy_score(y_test, y_pred)
+    precision = precision_score(y_test, y_pred)
+    recall = recall_score(y_test, y_pred)
+    f1 = f1_score(y_test, y_pred)
+    confusion = confusion_matrix(y_test, y_pred)
+    
+    print(f"Train/Test Split: {train_ratio}/{test_ratio}")
+    print("Confusion Matrix:")
+    print(confusion)
+    print("Accuracy:", accuracy)
+    print("Precision:", precision)
+    print("Recall:", recall)
+    print("F1-score:", f1)
+    print("----------------------------------------")
+
+# Perform k-fold cross-validation and evaluate performance
+k = 5  # Choose an appropriate value for k
+svm_cv = SVC(kernel='linear')
+scores = cross_val_score(svm_cv, X, y, cv=k)
+mean_accuracy = np.mean(scores)
+
+print(f"Cross-Validation (k={k})")
+print("Accuracy scores:", scores)
+print("Mean Accuracy:", mean_accuracy)
+
+
          `
       );
     },
