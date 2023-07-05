@@ -868,6 +868,103 @@ print("Accuracy scores:", scores)
 print("Mean Accuracy:", mean_accuracy)
 
 
+#	---- Hil Climbing----
+import random
+import math
+
+# Define the function to be optimized
+def f(x, y):
+    return math.exp(-(x*2+y*2))
+
+step_size = 0.1
+
+#initial solution
+x, y = random.uniform(-5, 5), random.uniform(-5, 5)
+score = f(x, y)
+
+#Hill Climbing algorithm
+while True:
+    # Generate a neighboring solution
+    x_new, y_new = x + random.uniform(-step_size, step_size), y + random.uniform(-step_size, step_size)
+    score_new = f(x_new, y_new)
+
+
+    if score_new > score:
+        x, y = x_new, y_new
+        score = score_new
+
+    else:
+        break
+
+# Print the solution and its score
+print("x =", x)
+print("y =", y)
+print("score =", score)
+
+#	---EA---
+import random
+
+# Define the genetic algorithm parameters
+POPULATION_SIZE = 50
+NUM_GENERATIONS = 100
+MUTATION_RATE = 0.1
+
+# Define the function to be optimized
+def f(x, y):
+    return (1-x)*2 + 100(y-x*2)*2
+
+# Define the genotypic representation for the function
+def genotypic_representation():
+    return [random.uniform(-5, 5), random.uniform(-5, 5)]
+
+# Define the fitness function for the genotypic representation
+def fitness(genotype):
+    return f(genotype[0], genotype[1])
+
+# Define the mutation operator for the genotypic representation
+def mutation(genotype):
+    if random.random() < MUTATION_RATE:
+        index = random.randint(0, 1)
+        genotype[index] += random.uniform(-0.1, 0.1)
+    return genotype
+
+# Define the crossover operator for the genotypic representation
+def crossover(parent1, parent2):
+    child1 = [parent1[0], parent2[1]]
+    child2 = [parent2[0], parent1[1]]
+    return child1, child2
+
+# Initialize the population with random genotypes
+population = [genotypic_representation() for _ in range(POPULATION_SIZE)]
+
+# Run the genetic algorithm for a fixed number of generations
+for _ in range(NUM_GENERATIONS):
+    # Evaluate the fitness of each individual in the population
+    fitness_scores = [fitness(genotype) for genotype in population]
+
+    # Select the parents for mating
+    parent_indices = random.choices(range(POPULATION_SIZE), weights=fitness_scores, k=2)
+    parent1 = population[parent_indices[0]]
+    parent2 = population[parent_indices[1]]
+
+    # Perform crossover and mutation to generate the offspring
+    child1, child2 = crossover(parent1, parent2)
+    child1 = mutation(child1)
+    child2 = mutation(child2)
+
+    # Replace the least fit individuals in the population with the offspring
+    population[fitness_scores.index(max(fitness_scores))] = child1
+    population[fitness_scores.index(max(fitness_scores))] = child2
+
+
+fitness_scores = [fitness(genotype) for genotype in population]
+best_index = fitness_scores.index(min(fitness_scores))
+best_genotype = population[best_index]
+best_score = fitness_scores[best_index]
+
+# Print the optimal solution and its score
+print("Optimal solution:", best_genotype)
+print("Optimal score:", best_score)
          `
       );
     },
