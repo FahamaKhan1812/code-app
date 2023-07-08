@@ -223,7 +223,240 @@ imshow(BW3)
 
 BW4 = imdilate(BW3,SE);
 imshow(BW4)
-		
+
+// ---------------------- LAB 05 ----------------------	
+rgb = imread('cancer.jpg');
+gray = rgb2gray(rgb); % convert rgb to gray
+gray = histeq(gray); % gray level normalization using equalization
+
+bin_thresh = logical(zeros(size(gray))); % create empty array for binary matrix
+
+for r = 1: size(gray,1)
+    
+    for c= 1: size(gray,2)
+         
+        if(gray(r,c)<100)
+            
+            bin_thresh(r,c) = 1; % binary thresholding to set 1
+            
+        else
+           
+            bin_thresh(r,c) = 0; % binary thresholding to set 0
+            
+        end  
+    end
+end
+    
+b = imclearborder(bin_thresh,4); % remove some background noise
+
+se = strel('disk',1);
+c = imerode(b,se); % apply erosion to shrink obj and also to remove tiny noise
+se = strel('disk',4);
+c = imdilate(c,se); % apply dilation to expand obj
+c = imfill(c,'holes');
+
+rp = regionprops(c, 'BoundingBox', 'Area'); % create rectangle to identify objects
+
+area = [rp.Area].';
+[area,ind] = sort(area,'descend'); % sort area on the basis of largest obj in image
+bb = rp(ind(1)).BoundingBox;
+bb2 = rp(ind(2)).BoundingBox;
+
+d = zeros(size(c,1),size(c,2),3); % fill color represent lung
+
+
+for row = 1:size(c,1)
+   for col = 1:size(c,2)
+      if(c(row,col) == 1)
+         
+          d(row,col,1) = 255;
+          d(row,col,2) = 255;
+          d(row,col,3) = 255;
+          
+      end
+   end
+    
+end
+figure,imshowpair(gray,d,'montage');
+rectangle('Position', bb, 'EdgeColor', 'red'); % plot red color rectangles
+rectangle('Position', bb2, 'EdgeColor', 'red');
+
+bw=im2bw(d,.2);
+% bw = bwareaopen(bw,5000,8);
+A = regionprops(bw,'Area');
+a=bwarea(bw); % area of lungs
+p=bwperim(bw,8); % perimeter of lungs
+figure,imshow(p); % print parimeter of lungs image
+imshow(rgb(:,:,1).*uint8(bw))
+%figure,imshow(d);
+impixelinfo;
+
+
+// ---------------------- LAB 06 ----------------------	
+image = imread('Z:\jump.jpg'); % read image
+% get image dimensions: an RGB image has three planes
+% reshaping puts the RGB layers next to each other generating
+% a two dimensional grayscale image
+[height, width, planes] = size(image);
+
+rgb = reshape(image, height, width * planes);
+imagesc(rgb); % visualize RGB planes
+
+r = image(:, :, 1); % red channel
+g = image(:, :, 2); % green channel
+b = image(:, :, 3); % blue channel
+ 
+threshold = 100; % threshold value
+imagesc(b < threshold); %display the binarized image
+ 
+% apply the blueness calculation
+
+blueness = double(b) - max(double(r), double(g));
+imagesc(blueness); % visualize RGB planes
+
+mask = blueness < 45;
+imagesc(mask);
+labels = bwlabel(mask);
+id = labels(200, 200); 
+man = (labels == id);
+imagesc(man); 
+% save the image in PPM (portable pixel map) format
+imwrite(man, 'Z:\man.ppm');
+imshow(man);
+
+
+// ---------------------- LAB 07 (Character Identification) ----------------------	
+I = imread('C:/Users/19b-037-cs/Desktop/DIP-Lab-07-SP23/training.png');
+imshow(I);
+Igray = rgb2gray(I); 
+%imshow(Igray);
+ 
+Ibw = imbinarize(Igray,graythresh(Igray));
+%imshow(Ibw)
+Iedge = edge(uint8(Ibw));
+%imshow(Iedge)
+ 
+se = strel('square',2);
+Iedge2 = imdilate(Iedge, se);
+%Iedge2 = imerode(Iedge,se);
+%imshow(Iedge2);
+Ifill= imfill(Iedge2,'holes');
+%imshow(Ifill);
+ 
+[Ilabel, num] = bwlabel(Ifill);
+disp(num);
+Iprops = regionprops(Ilabel);
+Ibox = [Iprops.BoundingBox];
+Ibox = reshape(Ibox,[4 50]);
+%imshow(I);
+ 
+hold on;
+for cnt = 1:50
+rectangle('position',Ibox(:,cnt),'edgecolor','r');
+end
+
+// ---------------------- LAB 08 (Laplacian Filters Technique) ----------------------	
+// 1
+% Read the image
+ 
+image = imread('C:/Users/19b-037-cs/Desktop/DIP-Lab-08-SP23/moon.png');
+% Create the Laplacian filter kernel
+laplacianFilter = fspecial('laplacian');
+ 
+% Apply the Laplacian filter to the image
+filteredImage = imfilter(image, laplacianFilter);
+ 
+image2= image-filteredImage;
+ 
+% Display the original and filtered images
+figure;
+subplot(1,3,1), imshow(image), title('Original Image');
+subplot(1,3,2), imshow(filteredImage), title('Laplacian Image');
+subplot(1,3,3), imshow(image2), title('Result');
+
+// 2
+originalImage = imread('C:/Users/19b-037-cs/Desktop/DIP-Lab-08-SP23/skeleton.png');
+% Read the image
+ 
+% Display the original image
+figure('Name', 'Image Processing Steps');
+subplot(2, 3, 1);
+imshow(originalImage);
+title('Original Image');
+ 
+% a Apply Laplacian filter
+laplacianFilter = fspecial('laplacian');
+laplacianImage = imfilter(originalImage, laplacianFilter, 'replicate');
+subplot(2, 3, 2);
+imshow(laplacianImage, []);
+title('Laplacian Filtered Image');
+ 
+% b Subtract Laplacian filter to display sharpened image
+sharpenedImage = originalImage - laplacianImage;
+subplot(2, 3, 3);
+imshow(sharpenedImage);
+title('Sharpened Image');
+ 
+% c Apply Sobel filter
+sobelFilter = fspecial('sobel');
+sobelImage = imfilter(originalImage, sobelFilter, 'replicate');
+subplot(2, 3, 4);
+imshow(sobelImage);
+title('Sobel Filtered Image');
+ 
+% d Smooth image by a 5x5 averaging filter
+averageFilter = fspecial('average', [5 5]);
+smoothedImage = imfilter(originalImage, averageFilter, 'replicate');
+subplot(2, 3, 5);
+imshow(smoothedImage);
+title('Smoothed Image');
+ 
+% e Apply power law to smoothed image
+gamma = 0.5; 
+powerLawImage = imadjust(smoothedImage, [], [], gamma);
+subplot(2, 3, 6);
+imshow(powerLawImage);
+title('Power Law Image');
+
+// ---------------------- LAB 09 (Cascade Object Detector) ----------------------	
+faceDetector = vision.CascadeObjectDetector;
+I = imread('C:/Users/19b-037-cs/Desktop/DIP-Lab-09-SP23/team.jpg');
+bboxes = step(faceDetector, I);
+IFaces = insertObjectAnnotation(I, 'rectangle', bboxes, 'Face');
+figure, imshow(IFaces), title('Detected faces');
+
+// ---------------------- LAB 10 (detecting-a-cell-using-image-segmentation) ----------------------	
+I = imread('cell.tif');
+[~,threshold] = edge(I,'sobel');
+fudgeFactor = 0.5;
+BWs = edge(I,'sobel',threshold * fudgeFactor);
+
+se90 = strel('line',3,90);
+se0 = strel('line',3,0);
+BWsdil = imdilate(BWs,[se90 se0]);
+
+BWdfill = imfill(BWsdil,'holes');
+BWnobord = imclearborder(BWdfill,4);
+
+
+seD = strel('diamond',1);
+BWfinal = imerode(BWnobord,seD);
+BWfinal = imerode(BWfinal,seD);
+
+BWoutline = bwperim(BWfinal);
+Segout = I; 
+Segout(BWoutline) = 255; 
+
+figure;
+subplot(2,4,1),imshow(I),title('Original Image');
+subplot(2,4,2),imshow(BWs),title('Binary Gradient Mask');
+subplot(2,4,3),imshow(BWsdil),title('Dilated Gradient Mask');
+subplot(2,4,4),imshow(BWdfill),title('Binary Image with Filled Holes');
+subplot(2,4,5), imshow(BWnobord),title('Cleared Border Image');
+subplot(2,4,6), imshow(BWfinal),title('Segmented Image');
+subplot(2,4,7), imshow(labeloverlay(I,BWfinal)),title('Mask Over Original Image')
+subplot(2,4,8), imshow(Segout),title('Outlined Original Image')
+
          `
       );
     },
