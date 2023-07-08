@@ -458,8 +458,109 @@ app.get("/help", (req, res) => {
      subplot(2,4,8), imshow(Segout),title('Outlined Original Image')
      
 
+     // ---------------------- LAB 11 (detecting-a-cell-using-image-segmentation) ----------------------    
 
 
+rgbImagePath = 'C:/Users/19b-053-cs/Desktop/DIP-Lab-11-SP23/garden.jpg';
+hsvImagePath = 'C:/Users/19b-053-cs/Desktop/DIP-Lab-11-SP23/hsv_garden.jpg';
+CMYImagePath = 'C:/Users/19b-053-cs/Desktop/DIP-Lab-11-SP23/cmy_garden.jpg';
+
+
+rgbImage = imread(rgbImagePath);
+
+% Get file information using dir function
+FileInfo = dir(rgbImagePath);
+rgbsize = FileInfo.bytes;
+
+disp(['RGB image size: ' num2str(rgbsize) ' bytes']);
+
+
+
+% Separate the color channels in RGB space
+redChannel = rgbImage(:, :, 1);
+greenChannel = rgbImage(:, :, 2);
+blueChannel = rgbImage(:, :, 3);
+
+% Compute histograms for RGB channels
+R = imhist(redChannel);
+G = imhist(greenChannel);
+B = imhist(blueChannel);
+
+% Plot RGB histograms
+figure;
+
+subplot(3, 4, 1), imshow(rgbImage), title('RGB');
+text(10, 20, ['Size: ' num2str(rgbsize) ' bytes'], 'Color', 'black');
+subplot(3, 4, [2, 3]), plot(R, 'r'), hold on;
+plot(G, 'g');
+plot(B, 'b');
+hold off;
+title('RGB Channel Histograms');
+legend('Red', 'Green', 'Blue');
+
+
+% Convert RGB image to HSV color space
+hsvImage = rgb2hsv(rgbImage);
+
+
+imwrite(hsvImage, hsvImagePath);
+
+FileInfo = dir(hsvImagePath);
+hissize= FileInfo.bytes;
+disp(['HIS image size: ' num2str(hissize) ' bytes']);
+
+
+% Separate the color channels in HSV space
+hueChannel = hsvImage(:, :, 1);
+saturationChannel = hsvImage(:, :, 2);
+valueChannel = hsvImage(:, :, 3);
+
+% Compute histograms for HSV channels
+H = imhist(hueChannel);
+S = imhist(saturationChannel);
+V = imhist(valueChannel);
+
+% Plot HSV histograms
+subplot(3, 4, 5),imshow(hsvImage),title('HSI Model');
+text(10, 20, ['Size: ' num2str(hissize) ' bytes'], 'Color', 'black');
+subplot(3, 4, [6, 7]), plot(H, 'c'), hold on;
+plot(S, 'm');
+plot(V, 'b');
+hold off;
+title('HIS Channel Histograms');
+legend('hue', 'Intensity', 'Saturation');
+
+
+% Normalize the RGB values to the range of [0, 1]
+DrgbImage = im2double(rgbImage);
+
+% Convert RGB to CMY
+cmyImage = 1 - DrgbImage;
+imwrite(cmyImage, CMYImagePath);
+
+FileInfo = dir(CMYImagePath);
+cmysize= FileInfo.bytes;
+disp(['CMY image size: ' num2str(cmysize) ' bytes']);
+
+% Separate the color channels in cmy space
+CyanChannel = cmyImage(:, :, 1);
+MagentaChannel = cmyImage(:, :, 2);
+YellowChannel = cmyImage(:, :, 3);
+
+% Compute histograms for cmy channels
+C = imhist(CyanChannel);
+M = imhist(MagentaChannel);
+Y = imhist(YellowChannel);
+
+
+subplot(3, 4, 9),imshow(cmyImage),title('CMY Image');
+text(10, 20, ['Size: ' num2str(cmysize) ' bytes'], 'Color', 'black');
+subplot(3, 4, [10, 11]), plot(C, 'c'), hold on;
+plot(M, 'm');
+plot(Y, 'b');
+hold off;
+title('CMY Channel Histograms');
+legend('Cyan', 'Magenta', 'Yellow');
 
        
         `
